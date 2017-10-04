@@ -41,8 +41,9 @@ public class SObjectHelperTest {
 
   @Test
   public void valueSchema() {
+    SalesforceSourceConnectorConfig config = new SalesforceSourceConnectorConfig(TestData.settings());
     final SObjectDescriptor descriptor = TestData.sObjectDescriptor();
-    final Schema schema = SObjectHelper.valueSchema(descriptor);
+    final Schema schema = SObjectHelper.valueSchema(descriptor, config);
     assertNotNull(schema);
     assertEquals("com.github.jcustenborder.kafka.connect.salesforce.Lead", schema.name());
   }
@@ -54,10 +55,10 @@ public class SObjectHelperTest {
     JsonNode dataNode = jsonNode.get("data");
     JsonNode eventNode = jsonNode.get("event");
     JsonNode sobjectNode = dataNode.get("sobject");
-    final Schema valueSchema = SObjectHelper.valueSchema(descriptor);
+    SalesforceSourceConnectorConfig config = new SalesforceSourceConnectorConfig(TestData.settings());
+    final Schema valueSchema = SObjectHelper.valueSchema(descriptor, config);
     final Schema keySchema = SObjectHelper.keySchema(descriptor);
     Struct struct = new Struct(valueSchema);
-    SalesforceSourceConnectorConfig config = new SalesforceSourceConnectorConfig(TestData.settings());
     SObjectHelper helper = new SObjectHelper(config, keySchema, valueSchema);
     helper.convertStruct(sobjectNode, valueSchema, struct);
     assertNotNull(struct);

@@ -97,7 +97,7 @@ public class SalesforceSourceConnector extends SourceConnector {
 
       Set<String> fields = new LinkedHashSet<>();
       for (SObjectDescriptor.Field f : sObjectDescriptor.fields()) {
-        if (SObjectHelper.isTextArea(f)) {
+        if (SObjectHelper.isTextArea(f) || !this.config.includeColumn(f.name())) {
           continue;
         }
         fields.add(f.name());

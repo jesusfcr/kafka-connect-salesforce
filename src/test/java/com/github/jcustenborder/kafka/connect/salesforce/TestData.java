@@ -56,6 +56,7 @@ public class TestData {
     settings.put(SalesforceSourceConnectorConfig.USERNAME_CONF, "Lead");
     settings.put(SalesforceSourceConnectorConfig.KAFKA_TOPIC_CONF, "salesforce.${__ObjectType}");
     settings.put(SalesforceSourceConnectorConfig.SALESFORCE_PUSH_TOPIC_NAME_CONF, "Testing");
+    settings.put(SalesforceSourceConnectorConfig.SALESFORCE_OBJECT_COLUMNS_WHITELIST, "Id, FirstName, LastName");
     return settings;
   }
 

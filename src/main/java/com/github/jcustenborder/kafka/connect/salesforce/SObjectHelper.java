@@ -155,13 +155,13 @@ class SObjectHelper {
     return builder.build();
   }
 
-  public static Schema valueSchema(SObjectDescriptor descriptor) {
+  public static Schema valueSchema(SObjectDescriptor descriptor, SalesforceSourceConnectorConfig config) {
     String name = String.format("%s.%s", SObjectHelper.class.getPackage().getName(), descriptor.name());
     SchemaBuilder builder = SchemaBuilder.struct();
     builder.name(name);
 
     for (SObjectDescriptor.Field field : descriptor.fields()) {
-      if (isTextArea(field)) {
+      if (isTextArea(field) || !config.includeColumn(field.name())) {
         continue;
       }
       Schema schema = schema(field);
