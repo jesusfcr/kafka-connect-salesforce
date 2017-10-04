@@ -142,6 +142,12 @@ class SObjectHelper {
       case "decimal":
         builder = Decimal.builder(field.scale());
         break;
+      case "percent":
+        builder = SchemaBuilder.float64();
+        break;
+      case "multipicklist":
+        builder = SchemaBuilder.string();
+        break;
       default:
         throw new UnsupportedOperationException(
             String.format("Field type '%s' for field '%s' is not supported", field.type(), field.name())
