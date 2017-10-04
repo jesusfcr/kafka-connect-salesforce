@@ -134,7 +134,7 @@ public class SalesforceSourceTask extends SourceTask {
     Preconditions.checkNotNull(this.descriptor, "Could not find descriptor for '%s'", this.config.salesForceObject);
 
     this.keySchema = SObjectHelper.keySchema(this.descriptor);
-    this.valueSchema = SObjectHelper.valueSchema(this.descriptor);
+    this.valueSchema = SObjectHelper.valueSchema(this.descriptor, this.config);
     this.topicChannelListener = new TopicChannelMessageListener(
         this.messageQueue, this.config, this.keySchema, this.valueSchema
     );
