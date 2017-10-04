@@ -22,6 +22,8 @@ import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 
@@ -43,6 +45,7 @@ public class SalesforceSourceConnectorConfig extends AbstractConfig {
   public static final String VERSION_CONF = "salesforce.version";
 
   public static final String SALESFORCE_OBJECT_CONF = "salesforce.object";
+  public static final String SALESFORCE_OBJECT_COLUMNS_WHITELIST = "salesforce.object.columns.whitelist";
   public static final String KAFKA_TOPIC_LOWERCASE_CONF = "kafka.topic.lowercase";
   public static final String KAFKA_TOPIC_CONF = "kafka.topic";
 
@@ -70,6 +73,7 @@ public class SalesforceSourceConnectorConfig extends AbstractConfig {
       "`" + SObjectHelper.FIELD_EVENT_TYPE + "` and `" + SObjectHelper.FIELD_OBJECT_TYPE + "` are two metadata fields that " +
       "are included on every record. For example you could put update and deletes in a different topic by using `salesforce.${_ObjectType}.${_EventType}`";
   static final String KAFKA_TOPIC_LOWERCASE_DOC = "Flag to determine if the kafka topic should be lowercased.";
+  static final String SALESFORCE_OBJECT_COLUMNS_WHITELIST_DOC = "Optional list of columns";
 
   public SalesforceSourceConnectorConfig(Map<String, ?> parsedConfig) {
     super(conf(), parsedConfig);
@@ -90,11 +94,19 @@ public class SalesforceSourceConnectorConfig extends AbstractConfig {
     this.salesForcePushTopicNotifyUndelete = this.getBoolean(SALESFORCE_PUSH_TOPIC_NOTIFY_UNDELETE_CONF);
     this.version = this.getString(VERSION_CONF);
     this.kafkaTopicLowerCase = getBoolean(KAFKA_TOPIC_LOWERCASE_CONF);
+    this.salesforceObjectColumnsWhitelist = getList(SALESFORCE_OBJECT_COLUMNS_WHITELIST);
     final String kafkaTopic = this.getString(KAFKA_TOPIC_CONF);
 
     StructTemplate template = new StructTemplate();
     template.addTemplate(TEMPLATE_NAME, kafkaTopic);
     this.kafkaTopicTemplate = template;
+  }
+
+  public boolean includeColumn(String name) {
+    return this.salesforceObjectColumnsWhitelist.isEmpty()
+            || this.salesforceObjectColumnsWhitelist.contains(name)
+            || name.equalsIgnoreCase("SystemModstamp")
+            || name.equalsIgnoreCase("Id");
   }
 
   public static ConfigDef conf() {
@@ -116,7 +128,8 @@ public class SalesforceSourceConnectorConfig extends AbstractConfig {
         .define(SALESFORCE_PUSH_TOPIC_NOTIFY_CREATE_CONF, Type.BOOLEAN, true, Importance.LOW, SALESFORCE_PUSH_TOPIC_NOTIFY_CREATE_DOC)
         .define(SALESFORCE_PUSH_TOPIC_NOTIFY_UPDATE_CONF, Type.BOOLEAN, true, Importance.LOW, SALESFORCE_PUSH_TOPIC_NOTIFY_UPDATE_DOC)
         .define(SALESFORCE_PUSH_TOPIC_NOTIFY_DELETE_CONF, Type.BOOLEAN, true, Importance.LOW, SALESFORCE_PUSH_TOPIC_NOTIFY_DELETE_DOC)
-        .define(SALESFORCE_PUSH_TOPIC_NOTIFY_UNDELETE_CONF, Type.BOOLEAN, true, Importance.LOW, SALESFORCE_PUSH_TOPIC_NOTIFY_UNDELETE_DOC);
+        .define(SALESFORCE_PUSH_TOPIC_NOTIFY_UNDELETE_CONF, Type.BOOLEAN, true, Importance.LOW, SALESFORCE_PUSH_TOPIC_NOTIFY_UNDELETE_DOC)
+        .define(SALESFORCE_OBJECT_COLUMNS_WHITELIST, Type.LIST, new ArrayList<String>(), Importance.LOW, SALESFORCE_OBJECT_COLUMNS_WHITELIST_DOC);
   }
 
   public static final String TEMPLATE_NAME = "topicName";
@@ -138,5 +151,6 @@ public class SalesforceSourceConnectorConfig extends AbstractConfig {
   public final boolean salesForcePushTopicNotifyUndelete;
   public final String version;
   public final boolean kafkaTopicLowerCase;
+  public final List<String> salesforceObjectColumnsWhitelist;
 
 }
